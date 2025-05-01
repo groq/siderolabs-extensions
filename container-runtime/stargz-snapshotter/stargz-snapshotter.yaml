@@ -6,7 +6,7 @@ container:
   - PATH=/usr/local/bin
   entrypoint: ./containerd-stargz-grpc
   args:
-    - --address=/var/run/containerd-stargz-grpc.sock
+    - --address=/var/run/containerd-stargz-grpc/containerd-stargz-grpc.sock
     - --root=/var/lib/containerd/io.containerd.snapshotter.v1.stargz
     - --log-level=trace
   security:
@@ -24,6 +24,12 @@ container:
       options:
         - rshared
         - rbind
+        - rw
+    - source: /var/run/containerd-stargz-grpc
+      destination: /var/run/containerd-stargz-grpc
+      type: bind
+      options:
+        - bind
         - rw
     - source: /usr/local/etc/containerd-stargz-grpc
       destination: /etc/containerd-stargz-grpc
