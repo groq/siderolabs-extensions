@@ -1,1 +1,30 @@
 debug_address = "/run/containerd-stargz-grpc/debug.sock"
+
+#
+# We need to skip verification for our registry mirrors
+# https://github.com/groq/gitops/blob/main/infrastructure/zot/base/zot.yaml#L88-L124
+#
+
+[[resolver.host."us-west1-docker.pkg.dev".mirrors]]
+host = "us-west1-docker.pkg.dev"
+insecure = true
+
+[[resolver.host."us-docker.pkg.dev".mirrors]]
+host = "us-docker.pkg.dev"
+insecure = true
+
+[[resolver.host."gcr.io".mirrors]]
+host = "gcr.io"
+insecure = true
+
+[[resolver.host."ghcr.io".mirrors]]
+host = "ghcr.io"
+insecure = true
+
+[[resolver.host."quay.io".mirrors]]
+host = "quay.io"
+insecure = true
+
+[[resolver.host."registry.k8s.io".mirrors]]
+host = "registry.k8s.io"
+insecure = true
