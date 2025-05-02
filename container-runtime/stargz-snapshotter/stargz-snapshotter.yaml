@@ -62,8 +62,8 @@ container:
         - rshared
         - rbind
         - rw
-    - source: /etc/kubernetes/kubeconfig-kubelet
-      destination: /etc/kubernetes/kubeconfig-kubelet
+    - source: /etc/kubernetes
+      destination: /etc/kubernetes
       type: bind
       options:
         - rbind
