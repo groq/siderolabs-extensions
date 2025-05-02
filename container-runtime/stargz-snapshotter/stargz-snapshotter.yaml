@@ -12,8 +12,8 @@ container:
   security:
     rootfsPropagation: shared
   mounts:
-    - source: /etc/ssl
-      destination: /etc/ssl
+    - source: /etc/ssl/certs/ca-certificates.crt
+      destination: /etc/ssl/certs/ca-certificates.crt
       type: bind
       options:
         - bind
