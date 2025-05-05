@@ -19,7 +19,7 @@ steps:
     steps:
       - id: "build"
         label: "Build"
-        commands: "make stargz-snapshotter fuse3 iscsi-tools PUSH=true"
+        commands: "make iscsi-tools PUSH=true"
         plugins:
           - *hermit
           - *gcp_auth
