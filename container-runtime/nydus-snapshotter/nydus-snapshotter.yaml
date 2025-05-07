@@ -1,0 +1,68 @@
+name: nydus-snapshotter
+depends:
+  - service: cri
+container:
+  environment:
+  - PATH=/usr/local/bin
+  entrypoint: containerd-nydus-grpc  
+  args:
+    - --address=/var/run/containerd-nydus-grpc/containerd-nydus-grpc.sock
+    - --config=./snapshotter-config.toml
+    - --nydusd-config=./nydusd-config.json
+    - --root=/var/lib/containerd/io.containerd.snapshotter.v1.nydus
+    - --daemon-mode=multiple
+    - --log-to-stdout
+  security:
+    rootfsPropagation: shared
+  mounts:
+    - source: /etc/ssl/certs/ca-certificates.crt
+      destination: /etc/ssl/certs/ca-certificates.crt
+      type: bind
+      options:
+        - bind
+        - ro
+    # location of nydusd and containerd-nydus-grpc binaries
+    - source: /usr/local/bin
+      destination: /usr/local/bin
+      type: bind
+      options:
+        - bind
+        - ro
+    # required for snapshotter to store state
+    - source: /var/lib/containerd/io.containerd.snapshotter.v1.nydus
+      destination: /var/lib/containerd/io.containerd.snapshotter.v1.nydus
+      type: bind
+      options:
+        - rshared
+        - rbind
+        - rw
+    # required containerd to proxy to snapshotter
+    - source: /var/run/containerd-nydus-grpc
+      destination: /var/run/containerd-nydus-grpc
+      type: bind
+      options:
+        - bind
+        - rw
+    # libs
+    - source: /lib
+      destination: /lib
+      type: bind
+      options:
+        - bind
+        - ro
+    # more libs
+    - source: /usr/lib
+      destination: /usr/lib
+      type: bind
+      options:
+        - bind
+        - ro
+    # required for nydusd fuse mounts
+    - source: /dev
+      destination: /dev
+      type: bind
+      options:
+        - rshared
+        - rbind
+        - rw
+restart: always
