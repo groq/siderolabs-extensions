@@ -1,0 +1,68 @@
+name: nydus-snapshotter
+depends:
+  - service: cri
+container:
+  environment:
+  - PATH=/usr/local/bin
+  entrypoint: /usr/local/bin/containerd-nydus-grpc  
+  args:
+    - --address=/var/run/containerd-nydus-grpc/containerd-nydus-grpc.sock
+    - --config=/etc/containerd-nydus-grpc/snapshotter-config.toml
+    - --nydusd-config=/etc/containerd-nydus-grpc/nydusd-config.json
+    - --root=/var/lib/containerd/io.containerd.snapshotter.v1.nydus
+    - --daemon-mode=multiple
+    - --log-to-stdout
+  security:
+    rootfsPropagation: shared
+  mounts:
+    - source: /etc/ssl/certs/ca-certificates.crt
+      destination: /etc/ssl/certs/ca-certificates.crt
+      type: bind
+      options:
+        - bind
+        - ro
+    - source: /var
+      destination: /var
+      type: bind
+      options:
+        - rshared
+        - rbind
+        - rw
+    - source: /var/run/containerd-nydus-grpc
+      destination: /var/run/containerd-nydus-grpc
+      type: bind
+      options:
+        - bind
+        - rw
+    - source: /usr/local/etc/containerd-nydus-grpc
+      destination: /etc/containerd-nydus-grpc
+      type: bind
+      options:
+        - bind
+        - ro
+    - source: /lib
+      destination: /lib
+      type: bind
+      options:
+        - bind
+        - ro
+    - source: /usr/lib
+      destination: /usr/lib
+      type: bind
+      options:
+        - bind
+        - ro
+    - source: /usr/local/bin
+      destination: /usr/local/bin
+      type: bind
+      options:
+        - bind
+        - ro
+    - source: /dev
+      destination: /dev
+      type: bind
+      options:
+        - rshared
+        - rbind
+        - rw
+restart: always
