@@ -1,0 +1,4 @@
+version = 1
+
+[remote.mirrors_config]
+dir = "/etc/containerd-nydus-grpc/certs.d"

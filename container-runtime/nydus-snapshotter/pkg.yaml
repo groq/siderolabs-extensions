@@ -1,0 +1,67 @@
+name: nydus-snapshotter
+variant: scratch
+shell: /toolchain/bin/bash
+dependencies:
+  - stage: base
+steps:
+  - sources:
+      - url: https://github.com/containerd/nydus-snapshotter/archive/refs/tags/{{ .NYDUS_SNAPSHOTTER_VERSION }}.tar.gz
+        destination: nydus-snapshotter.tar.gz
+        sha256: 3ecc747fd05096472a2d661b6d944d644f5ffa665b2e0b3eda1c3b67e88820d3
+        sha512: d557bcc743631818a68b58dc08597ff775aaf41279fd91fb200b451157978ac7740c388c7a803966b42154e5a4c92ca046abf35a500c89486e0ca86a27ff43cc
+      # {{ if eq .ARCH "aarch64" }} This in fact is YAML comment, but Go templating instruction is evaluated by bldr
+      - url: https://github.com/dragonflyoss/nydus/releases/download/{{ .NYDUS_VERSION }}/nydus-static-{{ .NYDUS_VERSION }}-linux-arm64.tgz
+        destination: nydus-static.tar.gz
+        sha256: a222238dfcd205e9c667c4ae51867bda981a51c6de4177a014abb0711be232d8
+        sha512: c1078f5f74dfe4f329c89897c0403a0152dd8e89453a313c85886187bd37ef75341dfb80439fbc13ac0803b81a1f8055b3200ac1216165c044a90dd8635c57e2
+      # {{ else }} This in fact is YAML comment, but Go templating instruction is evaluated by bldr
+      - url: https://github.com/dragonflyoss/nydus/releases/download/{{ .NYDUS_VERSION }}/nydus-static-{{ .NYDUS_VERSION }}-linux-amd64.tgz
+        destination: nydus-static.tar.gz
+        sha256: bd0cac0785572b2d8af1b4f97f9272713356fbc0c8e0770b23cfc8ea0e3920ae
+        sha512: c8331c991749321001e200be649534ef00ca41e5bd90313e6468c94ddadaa849037d430aec4a7cfa21ed63597c8bda703cae0f0dc1535f43af9f961889670e75
+      # {{ end }} This in fact is YAML comment, but Go templating instruction is evaluated by bldr
+    cachePaths:
+      - /.cache/go-build
+      - /go/pkg
+    prepare:
+      - |
+        sed -i 's#$VERSION#{{ .VERSION }}#' /pkg/manifest.yaml
+      - |
+        mkdir -p nydus-snapshotter
+        tar -xzf nydus-snapshotter.tar.gz --strip-components=1 -C nydus-snapshotter
+      - | 
+        tar -xzf nydus-static.tar.gz --strip-components=1
+    build:
+      - |
+        export PATH=${PATH}:${TOOLCHAIN}/go/bin
+        cd nydus-snapshotter
+        make static
+    install:
+      - |
+        mkdir -p /rootfs/usr/local/bin
+        cp -p nydusd /rootfs/usr/local/bin
+        cp -p nydus-snapshotter/bin/containerd-nydus-grpc /rootfs/usr/local/bin
+        cp -p nydus-snapshotter/bin/nydus-overlayfs /rootfs/usr/local/bin
+      - |
+        mkdir -p /rootfs/etc/cri/conf.d
+        cp /pkg/10-nydus-snapshotter.part /rootfs/etc/cri/conf.d/10-nydus-snapshotter.part
+
+        mkdir -p /rootfs/usr/local/etc/containerd-nydus-grpc
+        cp /pkg/snapshotter-config.toml /rootfs/usr/local/etc/containerd-nydus-grpc/snapshotter-config.toml
+        cp /pkg/nydusd-config.json /rootfs/usr/local/etc/containerd-nydus-grpc/nydusd-config.json
+
+        mkdir -p /rootfs/usr/local/etc/containerd-nydus-grpc/certs.d
+
+        mkdir -p /rootfs/usr/local/etc/containers
+        cp /pkg/nydus-snapshotter.yaml /rootfs/usr/local/etc/containers/
+    test:
+      - |
+        mkdir -p /extensions-validator-rootfs
+        cp -r /rootfs/ /extensions-validator-rootfs/rootfs
+        cp /pkg/manifest.yaml /extensions-validator-rootfs/manifest.yaml
+        /extensions-validator validate --rootfs=/extensions-validator-rootfs --pkg-name="${PKG_NAME}"
+finalize:
+  - from: /rootfs
+    to: /rootfs
+  - from: /pkg/manifest.yaml
+    to: /
