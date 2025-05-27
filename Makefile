@@ -91,6 +91,7 @@ TARGETS += qemu-guest-agent
 TARGETS += qlogic-firmware
 TARGETS += realtek-firmware
 TARGETS += spin
+TARGETS += soci-snapshotter
 TARGETS += stargz-snapshotter
 TARGETS += tailscale
 TARGETS += thunderbolt
@@ -102,7 +103,6 @@ TARGETS += vmtoolsd-guest-agent
 TARGETS += wasmedge
 TARGETS += xen-guest-agent
 TARGETS += zfs
-TARGETS += nydus-snapshotter
 NONFREE_TARGETS = nonfree-kmod-nvidia-lts
 NONFREE_TARGETS += nonfree-kmod-nvidia-production
 

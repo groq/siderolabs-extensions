@@ -1,0 +1,12 @@
+version = 1
+
+[remote.mirrors_config]
+dir = "/etc/cri/conf.d/hosts"
+
+[cri_keychain]
+# This tells the SOCI snapshotter to act as a proxy ImageService
+# and to cache credentials from requests to pull images.
+enable_keychain = true
+# This tells the SOCI snapshotter where containerd's ImageService is located.
+# The SOCI snapshotter will forward requests here after caching credentials.
+image_service_path = "/run/containerd/containerd.sock"
