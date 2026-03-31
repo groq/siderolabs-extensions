@@ -4,6 +4,7 @@
         ":semanticCommitScopeDisabled",
         "schedule:earlyMondays"
     ],
+    "minimumReleaseAge": "1 day",
     "regexManagers": [
         {
             "fileMatch": [
